@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UK Coffee Spot</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fafaf8;color:#1a1a1a;-webkit-font-smoothing:antialiased}
+    :root{--ink:#1a1a1a;--ink2:#555;--ink3:#999;--ink4:#ccc;--ink5:#e8e6e1;--bg:#fafaf8;--card:#fff;--coffee:#6f4e37;--coffee-dark:#5a3e2b;--coffee-light:#f3ece4;--green:#3d8b5e;--green-light:#ecf5f0;--amber:#c48a1a;--amber-light:#fdf5e6;--r:12px}
+    header{background:#fff;border-bottom:1px solid var(--ink5);position:sticky;top:0;z-index:1000}
+    .hdr{max-width:900px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px}
+    .logo{display:flex;align-items:center;gap:10px}
+    .logo-i{width:32px;height:32px;border-radius:8px;background:var(--coffee);display:flex;align-items:center;justify-content:center;color:#fff}
+    .logo h1{font-size:16px;font-weight:700;letter-spacing:-.3px;line-height:1}
+    .logo p{font-size:10px;color:var(--ink3);margin-top:1px}
+    .ctrls{display:flex;align-items:center;gap:6px}
+    .sw{position:relative}.sw svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ink4)}
+    .sw input{padding:7px 10px 7px 32px;border-radius:8px;border:1px solid var(--ink5);font-size:13px;width:200px;font-family:inherit;background:var(--bg);color:var(--ink)}
+    .sw input:focus{outline:none;border-color:var(--coffee);box-shadow:0 0 0 3px rgba(111,78,55,.08)}
+    .btn{display:flex;align-items:center;gap:4px;padding:7px 12px;border-radius:8px;border:1px solid var(--ink5);background:#fff;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;color:var(--ink2)}.btn:hover{background:var(--bg)}
+    #mc{width:100%;height:420px;border-bottom:1px solid var(--ink5)}#map{width:100%;height:100%}
+    .leaflet-popup-content-wrapper{border-radius:var(--r)!important;box-shadow:0 6px 24px rgba(0,0,0,.1)!important;padding:0!important}
+    .leaflet-popup-content{margin:0!important;font-family:'Inter',sans-serif}
+    .leaflet-popup-close-button{top:8px!important;right:10px!important;font-size:18px!important;color:#999!important}
+    .dot{width:28px;height:28px;border-radius:50%;background:var(--coffee);border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 6px rgba(111,78,55,.35);transition:transform .15s}.dot:hover{transform:scale(1.2)}
+    .me-dot{width:12px;height:12px;border-radius:50%;background:#4285f4;border:2.5px solid #fff;box-shadow:0 0 0 6px rgba(66,133,244,.15)}
+    .lw{max-width:900px;margin:0 auto;padding:12px 24px 60px}
+    .sn{font-size:11px;color:var(--ink4);margin-bottom:12px;display:flex;align-items:center;gap:4px}
+    .cds{display:flex;flex-direction:column;gap:8px}
+    .cd{background:var(--card);border-radius:var(--r);padding:16px 20px;border:1px solid var(--ink5);transition:box-shadow .2s,transform .2s;animation:rise .3s ease both}.cd:hover{box-shadow:0 4px 16px rgba(0,0,0,.06);transform:translateY(-1px)}
+    .ct{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+    .cl{flex:1;min-width:0}.cr{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;padding-top:2px}
+    .cn{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}.cn h3{font-size:15px;font-weight:600;letter-spacing:-.2px}.cn span{font-size:11px;color:var(--ink3)}
+    .ca{font-size:12px;color:var(--ink4);margin-bottom:5px;line-height:1.3}
+    .st{display:inline-flex;align-items:center;gap:1px}.st .v{margin-left:3px;font-size:11px;color:#aaa;font-weight:500}
+    .tg{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+    .ch{font-size:11px;color:var(--ink4);margin-top:8px;display:flex;align-items:center;gap:4px}
+    .dl{font-size:18px;font-weight:700;letter-spacing:-.5px;line-height:1}
+    .db{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:8px;background:var(--coffee);color:#fff;text-decoration:none;font-size:12px;font-weight:600;transition:background .15s}.db:hover{background:var(--coffee-dark)}
+    .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;line-height:1}
+    .pc{background:var(--coffee-light);color:var(--coffee)}.pg{background:var(--green-light);color:var(--green)}.pa{background:var(--amber-light);color:var(--amber)}.pn{background:#f2f1ee;color:#777}
+    .empty{text-align:center;padding:48px 0;color:var(--ink4);font-size:15px}
+    .loading{text-align:center;padding:48px 0;color:var(--ink3)}
+    .loading .spin{display:inline-block;width:24px;height:24px;border:2.5px solid var(--ink5);border-top-color:var(--coffee);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+    .region-bar{max-width:900px;margin:0 auto;padding:16px 24px 0;display:flex;gap:6px;overflow-x:auto}
+    .rb{padding:5px 14px;border-radius:20px;border:1px solid var(--ink5);background:#fff;color:var(--ink3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s}.rb.on{border:1.5px solid var(--coffee);background:var(--coffee-light);color:var(--coffee)}
+    .fab{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;align-items:center;gap:6px;padding:12px 20px;border-radius:28px;background:var(--coffee);color:#fff;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(111,78,55,.3);transition:background .15s}.fab:hover{background:var(--coffee-dark)}
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;justify-content:center;align-items:center}.modal-bg.open{display:flex}
+    .modal{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:460px;max-height:80vh;overflow-y:auto;box-shadow:0 24px 48px rgba(0,0,0,.15)}
+    .modal h2{font-size:18px;font-weight:700;margin-bottom:4px}.modal p.sub{font-size:12px;color:var(--ink3);margin-bottom:20px}
+    .fg{margin-bottom:14px}.fg label{display:block;font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:4px}
+    .fg input,.fg select{width:100%;padding:8px 12px;border:1px solid var(--ink5);border-radius:8px;font-size:13px;font-family:inherit}
+    .fg input:focus,.fg select:focus{outline:none;border-color:var(--coffee)}
+    .chks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.chks label{font-size:12px;display:flex;align-items:center;gap:4px;color:var(--ink2)}
+    .mbtn{display:flex;gap:8px;margin-top:20px}.mbtn button{flex:1;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none}
+    .mbtn .cancel{background:var(--bg);color:var(--ink2);border:1px solid var(--ink5)}.mbtn .submit{background:var(--coffee);color:#fff}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
+    @media(max-width:600px){.sw input{width:130px}.hdr,.region-bar,.lw{padding-left:16px;padding-right:16px}#mc{height:320px}}
+  </style>
+</head>
+<body>
+<header><div class="hdr">
+  <div class="logo">
+    <div class="logo-i"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg></div>
+    <div><h1>UK Coffee Spot</h1><p id="cnt">Loading...</p></div>
+  </div>
+  <div class="ctrls">
+    <div class="sw"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q" placeholder="Search..."></div>
+    <button class="btn" id="loc"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg><span id="lt">Locate me</span></button>
+  </div>
+</div></header>
+<div id="mc"><div id="map"></div></div>
+<div class="region-bar" id="regions"></div>
+<div class="lw">
+  <p class="sn" id="sn" style="display:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Sorted by nearest to you</p>
+  <div class="cds" id="cds"><div class="loading"><div class="spin"></div><p>Finding coffee shops across the UK...</p></div></div>
+</div>
+<button class="fab" id="fab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Submit a shop</button>
+<div class="modal-bg" id="mbg">
+  <div class="modal">
+    <h2>Submit a coffee shop</h2>
+    <p class="sub">Help us grow the UK's best coffee guide</p>
+    <div class="fg"><label>Shop name</label><input type="text" placeholder="e.g. Monmouth Coffee"></div>
+    <div class="fg"><label>Address</label><input type="text" placeholder="Full address including postcode"></div>
+    <div class="fg"><label>City / Town</label><input type="text" placeholder="e.g. London"></div>
+    <div class="fg"><label>Espresso machine</label><select><option value="">Select or don't know...</option><option>La Marzocco Linea PB</option><option>La Marzocco Linea Classic</option><option>La Marzocco GB5</option><option>La Marzocco Strada</option><option>Victoria Arduino Black Eagle</option><option>Victoria Arduino Eagle One</option><option>Synesso MVP Hydra</option><option>Slayer Espresso</option><option>Sanremo Cafe Racer</option><option>Nuova Simonelli Aurelia</option><option>Other</option></select></div>
+    <div class="fg"><label>Price range</label><select><option>£</option><option>££</option><option>£££</option></select></div>
+    <div class="fg"><label>Features</label>
+      <div class="chks">
+        <label><input type="checkbox"> Pastries</label>
+        <label><input type="checkbox"> Outdoor seating</label>
+        <label><input type="checkbox"> Dog friendly</label>
+        <label><input type="checkbox"> WiFi</label>
+      </div>
+    </div>
+    <div class="mbtn"><button class="cancel" id="mclose">Cancel</button><button class="submit" id="msub">Submit</button></div>
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ─── CONFIG ───
+var API_KEY = 'AIzaSyDMkUXp9RyoHw3EuwaRNZ2UnBzmoB0DVEY';
+var FIELDS = 'places.displayName,places.formattedAddress,places.location,places.rating,places.currentOpeningHours,places.priceLevel,places.types,places.userRatingCount';
+
+// UK regions to search — covers the whole country
+var REGIONS = [
+  {name:"London",lat:51.5074,lng:-0.1278,r:15000},
+  {name:"Manchester",lat:53.4808,lng:-2.2426,r:8000},
+  {name:"Edinburgh",lat:55.9533,lng:-3.1883,r:8000},
+  {name:"Bristol",lat:51.4545,lng:-2.5879,r:8000},
+  {name:"Birmingham",lat:52.4862,lng:-1.8904,r:8000},
+  {name:"Leeds",lat:53.8008,lng:-1.5491,r:8000},
+  {name:"Glasgow",lat:55.8642,lng:-4.2518,r:8000},
+  {name:"Liverpool",lat:53.4084,lng:-2.9916,r:8000},
+  {name:"Sheffield",lat:53.3811,lng:-1.4701,r:6000},
+  {name:"Newcastle",lat:54.9783,lng:-1.6178,r:6000},
+  {name:"Brighton",lat:50.8225,lng:-0.1372,r:6000},
+  {name:"Cardiff",lat:51.4816,lng:-3.1791,r:6000},
+  {name:"Nottingham",lat:52.9548,lng:-1.1581,r:6000},
+  {name:"Bath",lat:51.3811,lng:-2.3590,r:5000},
+  {name:"Oxford",lat:51.7520,lng:-1.2577,r:5000},
+  {name:"Cambridge",lat:52.2053,lng:0.1218,r:5000},
+  {name:"York",lat:53.9600,lng:-1.0873,r:5000},
+  {name:"Belfast",lat:54.5973,lng:-5.9301,r:6000},
+  {name:"Norwich",lat:52.6309,lng:1.2974,r:5000},
+  {name:"Exeter",lat:50.7184,lng:-3.5339,r:5000},
+  {name:"Aberdeen",lat:57.1497,lng:-2.0943,r:5000},
+  {name:"Bournemouth",lat:50.7192,lng:-1.8808,r:5000},
+  {name:"Canterbury",lat:51.2802,lng:1.0789,r:4000},
+  {name:"Harrogate",lat:53.9921,lng:-1.5418,r:4000},
+  {name:"Cornwall",lat:50.2660,lng:-5.0527,r:20000},
+  {name:"Southampton",lat:50.9097,lng:-1.4044,r:5000},
+  {name:"Leicester",lat:52.6369,lng:-1.1398,r:5000},
+  {name:"Plymouth",lat:50.3755,lng:-4.1427,r:5000},
+];
+
+// ─── State ───
+var shops = [];
+var ul = null;
+var qry = '';
+var regionFilter = '';
+var mp = null;
+var mks = [];
+var loaded = 0;
+
+// ─── Utils ───
+function hav(a1,n1,a2,n2){var R=6371,dL=(a2-a1)*Math.PI/180,dG=(n2-n1)*Math.PI/180,a=Math.sin(dL/2)*Math.sin(dL/2)+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dG/2)*Math.sin(dG/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
+function fd(k){return k<1?Math.round(k*1000)+'m':k<10?k.toFixed(1)+'km':Math.round(k)+'km'}
+function du(la,ln){return'https://www.google.com/maps/dir/?api=1&destination='+la+','+ln}
+
+var navSvg='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>';
+var clockSvg='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+var wifiSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>';
+
+function starH(r){if(!r)return'';var h='';for(var i=1;i<=5;i++){var f=i<=Math.round(r)?'#d4a017':'none',s=i<=Math.round(r)?'#d4a017':'#ccc';h+='<svg width="12" height="12" viewBox="0 0 24 24" fill="'+f+'" stroke="'+s+'" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';}return h+'<span class="v">'+r.toFixed(1)+'</span>'}
+
+function pl(c,t){return'<span class="pill '+c+'">'+t+'</span>'}
+
+function priceLabel(level){
+  if(level==='PRICE_LEVEL_INEXPENSIVE')return'£';
+  if(level==='PRICE_LEVEL_MODERATE')return'££';
+  if(level==='PRICE_LEVEL_EXPENSIVE')return'£££';
+  if(level==='PRICE_LEVEL_VERY_EXPENSIVE')return'££££';
+  return'';
+}
+
+function shortHours(hrs){
+  if(!hrs||!hrs.weekdayDescriptions)return'';
+  // Show today's hours
+  var d=new Date().getDay();
+  var idx=d===0?6:d-1; // weekdayDescriptions starts Monday
+  var today=hrs.weekdayDescriptions[idx]||'';
+  return today;
+}
+
+function tags(sh){
+  var t='';
+  if(sh.price)t+=pl('pn',sh.price);
+  if(sh.rating)t+=pl('pc','★ '+sh.rating.toFixed(1));
+  if(sh.ratingCount)t+=pl('pn',sh.ratingCount+' reviews');
+  return t;
+}
+
+function popH(sh,dist){
+  var hrs=shortHours(sh.hours);
+  return'<div style="padding:14px 16px;min-width:220px;max-width:280px;font-family:Inter,sans-serif">'+
+    '<strong style="font-size:14px;display:block;margin-bottom:2px">'+sh.n+'</strong>'+
+    '<p style="color:#999;font-size:11px;margin:0 0 6px">'+sh.a+'</p>'+
+    (dist?'<p style="color:#6f4e37;font-size:12px;font-weight:600;margin:0 0 8px">'+dist+' away</p>':'')+
+    '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">'+tags(sh)+'</div>'+
+    (hrs?'<p style="color:#bbb;font-size:10px;margin:0 0 10px">'+hrs+'</p>':'')+
+    '<a href="'+du(sh.lat,sh.lng)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:#6f4e37;color:white;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600">'+navSvg+' Directions</a></div>';
+}
+
+// ─── Filter & Sort ───
+function filt(){
+  var list=shops;
+  if(regionFilter){list=list.filter(function(s){return s.region===regionFilter})}
+  if(!qry.trim())return list;
+  var t=qry.toLowerCase();
+  return list.filter(function(s){return s.n.toLowerCase().indexOf(t)>-1||s.a.toLowerCase().indexOf(t)>-1||s.region.toLowerCase().indexOf(t)>-1});
+}
+function srt(l){if(!ul)return l;return l.slice().sort(function(a,b){return hav(ul.lat,ul.lng,a.lat,a.lng)-hav(ul.lat,ul.lng,b.lat,b.lng)})}
+
+// ─── Render Cards ───
+function renderCards(){
+  var f=filt(),so=srt(f),c=document.getElementById('cds'),sn=document.getElementById('sn'),cn=document.getElementById('cnt');
+  cn.textContent=so.length+' coffee shop'+(so.length!==1?'s':'');
+  sn.style.display=ul?'flex':'none';
+  if(!so.length){c.innerHTML='<div class="empty">No results</div>';return}
+  var h='';
+  so.forEach(function(sh,i){
+    var d=ul?hav(ul.lat,ul.lng,sh.lat,sh.lng):null;
+    var hrs=shortHours(sh.hours);
+    h+='<div class="cd" style="animation-delay:'+Math.min(i*20,600)+'ms"><div class="ct"><div class="cl">'+
+      '<div class="cn"><h3>'+sh.n+'</h3><span>'+sh.region+'</span></div>'+
+      '<p class="ca">'+sh.a+'</p>'+
+      (sh.rating?'<div class="st">'+starH(sh.rating)+'</div>':'')+
+      '<div class="tg">'+tags(sh)+'</div>'+
+      (hrs?'<p class="ch">'+clockSvg+' '+hrs+'</p>':'')+
+      '</div><div class="cr">'+
+      (d!==null?'<span class="dl">'+fd(d)+'</span>':'')+
+      '<a href="'+du(sh.lat,sh.lng)+'" target="_blank" rel="noopener" class="db">'+navSvg+' Directions</a>'+
+      '</div></div></div>';
+  });
+  c.innerHTML=h;
+}
+
+// ─── Render Map Markers ───
+function renderMks(){
+  if(!mp)return;
+  mks.forEach(function(m){mp.removeLayer(m)});mks=[];
+  var f=filt(),so=srt(f);
+  if(ul){var ui=L.divIcon({className:'',html:'<div class="me-dot"></div>',iconSize:[12,12],iconAnchor:[6,6]});mks.push(L.marker([ul.lat,ul.lng],{icon:ui}).addTo(mp))}
+  so.forEach(function(sh){
+    var ic=L.divIcon({className:'',html:'<div class="dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/></svg></div>',iconSize:[28,28],iconAnchor:[14,14]});
+    var d=ul?fd(hav(ul.lat,ul.lng,sh.lat,sh.lng)):'';
+    mks.push(L.marker([sh.lat,sh.lng],{icon:ic}).addTo(mp).bindPopup(popH(sh,d),{maxWidth:300}));
+  });
+  if(so.length>0){var pts=so.map(function(s){return[s.lat,s.lng]});if(ul)pts.push([ul.lat,ul.lng]);mp.fitBounds(pts,{padding:[30,30],maxZoom:13})}
+}
+
+// ─── Region pills ───
+function renderRegions(){
+  var rs={};shops.forEach(function(s){rs[s.region]=(rs[s.region]||0)+1});
+  var sorted=Object.keys(rs).sort();
+  var w=document.getElementById('regions');
+  var h='<button class="rb'+(regionFilter===''?' on':'')+'" data-r="">All ('+shops.length+')</button>';
+  sorted.forEach(function(r){h+='<button class="rb'+(regionFilter===r?' on':'')+'" data-r="'+r+'">'+r+' ('+rs[r]+')</button>'});
+  w.innerHTML=h;
+  w.querySelectorAll('.rb').forEach(function(b){b.addEventListener('click',function(){
+    regionFilter=this.getAttribute('data-r');
+    renderRegions();renderCards();renderMks();
+  })});
+}
+
+// ─── Google Places API ───
+function searchRegion(region){
+  var body={
+    textQuery:'coffee shop '+region.name+' UK',
+    maxResultCount:20,
+    locationBias:{circle:{center:{latitude:region.lat,longitude:region.lng},radius:region.r}}
+  };
+  return fetch('https://places.googleapis.com/v1/places:searchText',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'X-Goog-Api-Key':API_KEY,
+      'X-Goog-FieldMask':FIELDS
+    },
+    body:JSON.stringify(body)
+  })
+  .then(function(r){return r.json()})
+  .then(function(data){
+    if(!data.places)return;
+    data.places.forEach(function(p){
+      // Deduplicate by name+location
+      var key=p.displayName.text+'-'+p.location.latitude.toFixed(4);
+      if(shops.some(function(s){return s.key===key}))return;
+      shops.push({
+        key:key,
+        n:p.displayName.text,
+        a:p.formattedAddress,
+        lat:p.location.latitude,
+        lng:p.location.longitude,
+        rating:p.rating||0,
+        ratingCount:p.userRatingCount||0,
+        price:priceLabel(p.priceLevel||''),
+        hours:p.currentOpeningHours||null,
+        types:p.types||[],
+        region:region.name
+      });
+    });
+    loaded++;
+    document.getElementById('cnt').textContent='Loading... '+loaded+'/'+REGIONS.length+' areas';
+  })
+  .catch(function(err){
+    console.error('Error loading '+region.name,err);
+    loaded++;
+  });
+}
+
+function loadAllRegions(){
+  // Load in batches of 5 to avoid overwhelming
+  var i=0;
+  function batch(){
+    var promises=[];
+    for(var j=0;j<5&&i<REGIONS.length;j++,i++){
+      promises.push(searchRegion(REGIONS[i]));
+    }
+    Promise.all(promises).then(function(){
+      if(i<REGIONS.length){
+        setTimeout(batch,300); // small delay between batches
+      } else {
+        // All done
+        renderRegions();
+        renderCards();
+        renderMks();
+      }
+    });
+  }
+  batch();
+}
+
+// ─── Init Map ───
+function initMap(){
+  var c=ul?[ul.lat,ul.lng]:[54.5,-2],z=ul?12:6;
+  mp=L.map('map',{zoomControl:false}).setView(c,z);
+  L.control.zoom({position:'bottomright'}).addTo(mp);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'',maxZoom:19}).addTo(mp);
+  setTimeout(function(){mp.invalidateSize()},100);
+}
+
+// ─── Locate ───
+function locate(){
+  if(!navigator.geolocation)return;
+  document.getElementById('lt').textContent='...';
+  navigator.geolocation.getCurrentPosition(function(p){
+    ul={lat:p.coords.latitude,lng:p.coords.longitude};
+    document.getElementById('lt').textContent='Locate me';
+    if(shops.length>0){renderCards();renderMks()}
+  },function(){document.getElementById('lt').textContent='Locate me'},{enableHighAccuracy:true,timeout:10000});
+}
+
+// ─── Events ───
+document.getElementById('q').addEventListener('input',function(){qry=this.value;renderCards();renderMks()});
+document.getElementById('loc').addEventListener('click',locate);
+document.getElementById('fab').addEventListener('click',function(){document.getElementById('mbg').classList.add('open')});
+document.getElementById('mclose').addEventListener('click',function(){document.getElementById('mbg').classList.remove('open')});
+document.getElementById('msub').addEventListener('click',function(){document.getElementById('mbg').classList.remove('open');alert('Thanks! Your submission will be reviewed.')});
+document.getElementById('mbg').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')});
+
+// ─── Boot ───
+window.addEventListener('DOMContentLoaded',function(){
+  initMap();
+  locate();
+  loadAllRegions();
+});
+</script>
+</body>
+</html>
