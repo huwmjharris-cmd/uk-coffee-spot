@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UK Coffee Spot</title>
+  <title>Edinburgh Coffee Spot</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -25,8 +25,12 @@
     .leaflet-popup-content-wrapper{border-radius:var(--r)!important;box-shadow:0 6px 24px rgba(0,0,0,.1)!important;padding:0!important}
     .leaflet-popup-content{margin:0!important;font-family:'Inter',sans-serif}
     .leaflet-popup-close-button{top:8px!important;right:10px!important;font-size:18px!important;color:#999!important}
-    .dot{width:28px;height:28px;border-radius:50%;background:var(--coffee);border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 6px rgba(111,78,55,.35);transition:transform .15s}.dot:hover{transform:scale(1.2)}
+    .dot{width:28px;height:28px;border-radius:50%;border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 6px rgba(111,78,55,.35);transition:transform .15s}.dot:hover{transform:scale(1.2)}
     .me-dot{width:12px;height:12px;border-radius:50%;background:#4285f4;border:2.5px solid #fff;box-shadow:0 0 0 6px rgba(66,133,244,.15)}
+    .pr{max-width:900px;margin:0 auto;padding:16px 24px 0}.ps{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+    .pb{padding:5px 14px;border-radius:20px;border:1px solid var(--ink5);background:#fff;color:var(--ink3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s}.pb.on{border:1.5px solid var(--coffee);background:var(--coffee-light);color:var(--coffee)}
+    .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;line-height:1}
+    .pc{background:var(--coffee-light);color:var(--coffee)}.pg{background:var(--green-light);color:var(--green)}.pa{background:var(--amber-light);color:var(--amber)}.pn{background:#f2f1ee;color:#777}
     .lw{max-width:900px;margin:0 auto;padding:12px 24px 60px}
     .sn{font-size:11px;color:var(--ink4);margin-bottom:12px;display:flex;align-items:center;gap:4px}
     .cds{display:flex;flex-direction:column;gap:8px}
@@ -40,327 +44,176 @@
     .ch{font-size:11px;color:var(--ink4);margin-top:8px;display:flex;align-items:center;gap:4px}
     .dl{font-size:18px;font-weight:700;letter-spacing:-.5px;line-height:1}
     .db{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:8px;background:var(--coffee);color:#fff;text-decoration:none;font-size:12px;font-weight:600;transition:background .15s}.db:hover{background:var(--coffee-dark)}
-    .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;line-height:1}
-    .pc{background:var(--coffee-light);color:var(--coffee)}.pg{background:var(--green-light);color:var(--green)}.pa{background:var(--amber-light);color:var(--amber)}.pn{background:#f2f1ee;color:#777}
     .empty{text-align:center;padding:48px 0;color:var(--ink4);font-size:15px}
-    .loading{text-align:center;padding:48px 0;color:var(--ink3)}
-    .loading .spin{display:inline-block;width:24px;height:24px;border:2.5px solid var(--ink5);border-top-color:var(--coffee);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
-    .region-bar{max-width:900px;margin:0 auto;padding:16px 24px 0;display:flex;gap:6px;overflow-x:auto}
-    .rb{padding:5px 14px;border-radius:20px;border:1px solid var(--ink5);background:#fff;color:var(--ink3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s}.rb.on{border:1.5px solid var(--coffee);background:var(--coffee-light);color:var(--coffee)}
     .fab{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;align-items:center;gap:6px;padding:12px 20px;border-radius:28px;background:var(--coffee);color:#fff;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(111,78,55,.3);transition:background .15s}.fab:hover{background:var(--coffee-dark)}
     .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;justify-content:center;align-items:center}.modal-bg.open{display:flex}
     .modal{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:460px;max-height:80vh;overflow-y:auto;box-shadow:0 24px 48px rgba(0,0,0,.15)}
     .modal h2{font-size:18px;font-weight:700;margin-bottom:4px}.modal p.sub{font-size:12px;color:var(--ink3);margin-bottom:20px}
     .fg{margin-bottom:14px}.fg label{display:block;font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:4px}
     .fg input,.fg select{width:100%;padding:8px 12px;border:1px solid var(--ink5);border-radius:8px;font-size:13px;font-family:inherit}
-    .fg input:focus,.fg select:focus{outline:none;border-color:var(--coffee)}
     .chks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.chks label{font-size:12px;display:flex;align-items:center;gap:4px;color:var(--ink2)}
     .mbtn{display:flex;gap:8px;margin-top:20px}.mbtn button{flex:1;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none}
     .mbtn .cancel{background:var(--bg);color:var(--ink2);border:1px solid var(--ink5)}.mbtn .submit{background:var(--coffee);color:#fff}
+    .stat{max-width:900px;margin:0 auto;padding:8px 24px;display:flex;gap:16px;font-size:11px;color:var(--ink3)}
+    .stat b{color:var(--coffee);font-weight:700}
     @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes spin{to{transform:rotate(360deg)}}
     ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
-    @media(max-width:600px){.sw input{width:130px}.hdr,.region-bar,.lw{padding-left:16px;padding-right:16px}#mc{height:320px}}
+    @media(max-width:600px){.sw input{width:130px}.hdr,.pr,.lw{padding-left:16px;padding-right:16px}#mc{height:320px}}
   </style>
 </head>
 <body>
 <header><div class="hdr">
   <div class="logo">
     <div class="logo-i"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg></div>
-    <div><h1>UK Coffee Spot</h1><p id="cnt">Loading...</p></div>
+    <div><h1>Edinburgh Coffee Spot</h1><p id="cnt">88 shops &middot; 34 confirmed machines</p></div>
   </div>
   <div class="ctrls">
-    <div class="sw"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q" placeholder="Search..."></div>
+    <div class="sw"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="q" placeholder="Search shops, machines..."></div>
     <button class="btn" id="loc"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg><span id="lt">Locate me</span></button>
   </div>
 </div></header>
 <div id="mc"><div id="map"></div></div>
-<div class="region-bar" id="regions"></div>
+<div class="pr"><div class="ps" id="pills"></div></div>
 <div class="lw">
   <p class="sn" id="sn" style="display:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Sorted by nearest to you</p>
-  <div class="cds" id="cds"><div class="loading"><div class="spin"></div><p>Finding coffee shops across the UK...</p></div></div>
+  <div class="cds" id="cds"></div>
 </div>
 <button class="fab" id="fab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Submit a shop</button>
 <div class="modal-bg" id="mbg">
   <div class="modal">
     <h2>Submit a coffee shop</h2>
-    <p class="sub">Help us grow the UK's best coffee guide</p>
-    <div class="fg"><label>Shop name</label><input type="text" placeholder="e.g. Monmouth Coffee"></div>
+    <p class="sub">Help us grow Edinburgh\'s coffee guide</p>
+    <div class="fg"><label>Shop name</label><input type="text" placeholder="e.g. Cairngorm Coffee"></div>
     <div class="fg"><label>Address</label><input type="text" placeholder="Full address including postcode"></div>
-    <div class="fg"><label>City / Town</label><input type="text" placeholder="e.g. London"></div>
-    <div class="fg"><label>Espresso machine</label><select><option value="">Select or don't know...</option><option>La Marzocco Linea PB</option><option>La Marzocco Linea Classic</option><option>La Marzocco GB5</option><option>La Marzocco Strada</option><option>Victoria Arduino Black Eagle</option><option>Victoria Arduino Eagle One</option><option>Synesso MVP Hydra</option><option>Slayer Espresso</option><option>Sanremo Cafe Racer</option><option>Nuova Simonelli Aurelia</option><option>Other</option></select></div>
-    <div class="fg"><label>Price range</label><select><option>£</option><option>££</option><option>£££</option></select></div>
-    <div class="fg"><label>Features</label>
-      <div class="chks">
-        <label><input type="checkbox"> Pastries</label>
-        <label><input type="checkbox"> Outdoor seating</label>
-        <label><input type="checkbox"> Dog friendly</label>
-        <label><input type="checkbox"> WiFi</label>
-      </div>
-    </div>
+    <div class="fg"><label>Espresso machine</label><select><option value="">Select or don\'t know...</option><option>La Marzocco Linea PB</option><option>La Marzocco Linea Classic</option><option>La Marzocco GB5</option><option>La Marzocco Strada</option><option>Victoria Arduino Black Eagle</option><option>Victoria Arduino Eagle One</option><option>Synesso MVP Hydra</option><option>Slayer Espresso</option><option>Modbar</option><option>Other</option></select></div>
+    <div class="fg"><label>Grinder</label><input type="text" placeholder="e.g. Mythos One, EK43"></div>
+    <div class="fg"><label>Features</label><div class="chks"><label><input type="checkbox"> Pastries</label><label><input type="checkbox"> Outdoor seating</label><label><input type="checkbox"> Dog friendly</label><label><input type="checkbox"> WiFi</label></div></div>
     <div class="mbtn"><button class="cancel" id="mclose">Cancel</button><button class="submit" id="msub">Submit</button></div>
   </div>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ─── CONFIG ───
-var API_KEY = 'AIzaSyDMkUXp9RyoHw3EuwaRNZ2UnBzmoB0DVEY';
-var FIELDS = 'places.displayName,places.formattedAddress,places.location,places.rating,places.currentOpeningHours,places.priceLevel,places.types,places.userRatingCount';
-
-// UK regions to search — covers the whole country
-var REGIONS = [
-  {name:"London",lat:51.5074,lng:-0.1278,r:15000},
-  {name:"Manchester",lat:53.4808,lng:-2.2426,r:8000},
-  {name:"Edinburgh",lat:55.9533,lng:-3.1883,r:8000},
-  {name:"Bristol",lat:51.4545,lng:-2.5879,r:8000},
-  {name:"Birmingham",lat:52.4862,lng:-1.8904,r:8000},
-  {name:"Leeds",lat:53.8008,lng:-1.5491,r:8000},
-  {name:"Glasgow",lat:55.8642,lng:-4.2518,r:8000},
-  {name:"Liverpool",lat:53.4084,lng:-2.9916,r:8000},
-  {name:"Sheffield",lat:53.3811,lng:-1.4701,r:6000},
-  {name:"Newcastle",lat:54.9783,lng:-1.6178,r:6000},
-  {name:"Brighton",lat:50.8225,lng:-0.1372,r:6000},
-  {name:"Cardiff",lat:51.4816,lng:-3.1791,r:6000},
-  {name:"Nottingham",lat:52.9548,lng:-1.1581,r:6000},
-  {name:"Bath",lat:51.3811,lng:-2.3590,r:5000},
-  {name:"Oxford",lat:51.7520,lng:-1.2577,r:5000},
-  {name:"Cambridge",lat:52.2053,lng:0.1218,r:5000},
-  {name:"York",lat:53.9600,lng:-1.0873,r:5000},
-  {name:"Belfast",lat:54.5973,lng:-5.9301,r:6000},
-  {name:"Norwich",lat:52.6309,lng:1.2974,r:5000},
-  {name:"Exeter",lat:50.7184,lng:-3.5339,r:5000},
-  {name:"Aberdeen",lat:57.1497,lng:-2.0943,r:5000},
-  {name:"Bournemouth",lat:50.7192,lng:-1.8808,r:5000},
-  {name:"Canterbury",lat:51.2802,lng:1.0789,r:4000},
-  {name:"Harrogate",lat:53.9921,lng:-1.5418,r:4000},
-  {name:"Cornwall",lat:50.2660,lng:-5.0527,r:20000},
-  {name:"Southampton",lat:50.9097,lng:-1.4044,r:5000},
-  {name:"Leicester",lat:52.6369,lng:-1.1398,r:5000},
-  {name:"Plymouth",lat:50.3755,lng:-4.1427,r:5000},
+var S=[
+{id:1,n:'Fortitude Coffee',a:'3c York Pl, Edinburgh EH1 3EB',lat:55.955756,lng:-3.19249,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:20,o:0,pr:'££',d:0,w:1,r:4.7,h:'Mon-Fri 8-5, Sat-Sun 9-5'},
+{id:2,n:'The Milkman',a:'7 Cockburn St, Edinburgh EH1 1BP',lat:55.950688,lng:-3.190921,c:'Edinburgh',m:'La Marzocco Linea Classic',p:1,s:12,o:0,pr:'£',d:0,w:0,r:4.6,h:'Mon-Fri 8-5, Sat-Sun 9-5'},
+{id:3,n:'Brew Lab',a:'6-8 S College St, Edinburgh EH8 9AA',lat:55.947019,lng:-3.186617,c:'Edinburgh',m:'Synesso MVP Hydra',p:0,s:35,o:0,pr:'££',d:0,w:1,r:4.6,h:'Mon-Fri 8-6, Sat-Sun 9-6'},
+{id:4,n:'Cairngorm Coffee',a:'41A Frederick St, Edinburgh EH2 1EP',lat:55.9532,lng:-3.1985,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:25,o:0,pr:'££',d:1,w:1,r:4.4,h:'Mon-Fri 8-5, Sat-Sun 9-5'},
+{id:5,n:'Artisan Roast Broughton',a:'57 Broughton St, Edinburgh EH1 3RJ',lat:55.957932,lng:-3.188855,c:'Edinburgh',m:'La Marzocco Linea Classic',p:0,s:18,o:0,pr:'£',d:1,w:1,r:4.4,h:'Mon-Sun 8-6'},
+{id:6,n:'Little Fitzroy',a:'46 Easter Rd, Edinburgh EH7 5PJ',lat:55.958494,lng:-3.171706,c:'Edinburgh',m:'La Marzocco Linea Classic',p:1,s:22,o:0,pr:'£',d:1,w:1,r:4.5,h:'Mon-Fri 8-4, Sat-Sun 9-4'},
+{id:7,n:'Machina Coffee',a:'2 Brougham Pl, Edinburgh EH3 9HW',lat:55.9431,lng:-3.2043,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:18,o:0,pr:'££',d:0,w:1,r:4.5,h:'Mon-Fri 8-5, Sat-Sun 9-5'},
+{id:8,n:'Kuna',a:'1 Elm Row, Edinburgh EH7 4AA',lat:55.958063,lng:-3.183933,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:9,n:'Williams & Johnson',a:'1 Customs Wharf, Leith, Edinburgh EH6 6AL',lat:55.976842,lng:-3.170506,c:'Edinburgh',m:'Victoria Arduino Black Eagle',p:1,s:30,o:1,pr:'££',d:1,w:1,r:4.7,h:''},
+{id:10,n:'Lowdown Coffee',a:'40 George St, Edinburgh EH2 2LE',lat:55.953242,lng:-3.197935,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:25,o:0,pr:'££',d:0,w:1,r:4.6,h:''},
+{id:11,n:'Soderberg Pavilion',a:'1 Lister Sq, Edinburgh EH3 9GL',lat:55.943964,lng:-3.193877,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:45,o:1,pr:'££',d:1,w:1,r:4.4,h:''},
+{id:12,n:'Artisan Roast Stockbridge',a:'100A Raeburn Pl, Edinburgh EH4 1HH',lat:55.959282,lng:-3.213771,c:'Edinburgh',m:'La Marzocco Linea Classic',p:0,s:15,o:0,pr:'£',d:1,w:1,r:4.4,h:''},
+{id:13,n:'Artisan Roast Bruntsfield',a:'138 Bruntsfield Pl, Edinburgh EH10 4ER',lat:55.93669,lng:-3.208045,c:'Edinburgh',m:'La Marzocco Linea Classic',p:0,s:18,o:0,pr:'£',d:1,w:1,r:4.5,h:''},
+{id:14,n:'Pep & Fodder',a:'11 Waterloo Pl, Edinburgh EH1 3BG',lat:55.953705,lng:-3.18784,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:35,o:1,pr:'££',d:1,w:1,r:4.5,h:''},
+{id:15,n:'Project Coffee',a:'192-194 Bruntsfield Pl, Edinburgh EH10 4DF',lat:55.936052,lng:-3.209591,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.5,h:''},
+{id:16,n:'Castello Coffee',a:'5 Castle Terrace, Edinburgh EH1 2DP',lat:55.9479,lng:-3.2003,c:'Edinburgh',m:'La Marzocco Linea Classic',p:1,s:30,o:0,pr:'££',d:0,w:1,r:4.5,h:''},
+{id:17,n:'Thomas J Walls',a:'35 Forrest Rd, Edinburgh EH1 2QN',lat:55.945833,lng:-3.191389,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:22,o:0,pr:'£',d:0,w:1,r:4.6,h:''},
+{id:18,n:'Leos Beanery',a:'23A Howe St, Edinburgh EH3 6TF',lat:55.956522,lng:-3.202125,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:15,o:0,pr:'£',d:0,w:1,r:4.6,h:''},
+{id:19,n:'Filament Coffee',a:'40 Clerk St, Edinburgh EH8 9HX',lat:55.942517,lng:-3.182279,c:'Edinburgh',m:'La Marzocco Linea Classic',p:0,s:16,o:0,pr:'£',d:0,w:1,r:4.5,h:''},
+{id:20,n:'Lovecrumbs',a:'155 West Port, Edinburgh EH3 9DP',lat:55.946031,lng:-3.201696,c:'Edinburgh',m:'La Marzocco Linea Classic',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.5,h:''},
+{id:21,n:'Wellington Coffee',a:'33A George St, Edinburgh EH2 2HN',lat:55.953631,lng:-3.197578,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:18,o:0,pr:'£',d:0,w:1,r:4.4,h:''},
+{id:22,n:'The Counter',a:'129 Lauriston Pl, Edinburgh EH3 9JN',lat:55.944004,lng:-3.202762,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:12,o:0,pr:'£',d:0,w:1,r:4.6,h:''},
+{id:23,n:'Twelve Triangles',a:'90 Brunswick St, Edinburgh EH7 5HU',lat:55.96069,lng:-3.180983,c:'Edinburgh',m:'Victoria Arduino Eagle One',p:1,s:20,o:0,pr:'£',d:1,w:0,r:4.7,h:''},
+{id:24,n:'Soderberg Stockbridge',a:'3 Deanhaugh St, Edinburgh EH4 1LU',lat:55.958231,lng:-3.209052,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:40,o:1,pr:'££',d:1,w:1,r:4.5,h:''},
+{id:25,n:'Fortitude Coffee Stockbridge',a:'66 Hamilton Pl, Edinburgh EH3 5AZ',lat:55.95921,lng:-3.207137,c:'Edinburgh',m:'Modbar',p:0,s:18,o:0,pr:'££',d:0,w:1,r:4.7,h:''},
+{id:26,n:'The Cobbled Roastery',a:'48 Thistle St, Edinburgh EH2 1EN',lat:55.953928,lng:-3.199112,c:'Edinburgh',m:'La Marzocco',p:1,s:20,o:0,pr:'££',d:0,w:1,r:4.9,h:''},
+{id:27,n:'Machina Coffee Marchmont',a:'38 Marchmont Rd, Edinburgh EH9 1HX',lat:55.938164,lng:-3.195042,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:20,o:0,pr:'££',d:0,w:1,r:4.5,h:''},
+{id:28,n:'Machina Coffee Roasters',a:'Unit 9 Peffermill Park, Edinburgh EH16 5UY',lat:55.933776,lng:-3.144601,c:'Edinburgh',m:'La Marzocco Linea PB',p:0,s:10,o:0,pr:'£',d:0,w:0,r:4.9,h:''},
+{id:29,n:'Hideout Cafe',a:'5 Upper Bow, Edinburgh EH1 2JN',lat:55.948922,lng:-3.19388,c:'Edinburgh',m:'Slayer Espresso',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.7,h:''},
+{id:30,n:'Black Medicine Coffee Co',a:'2 Nicolson St, Edinburgh EH8 9DH',lat:55.947174,lng:-3.185893,c:'Edinburgh',m:'La Marzocco Linea Classic',p:1,s:30,o:0,pr:'£',d:0,w:1,r:4.5,h:''},
+{id:31,n:'Origin Coffee',a:'6-8 S College St, Edinburgh EH8 9AA',lat:55.947019,lng:-3.186617,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:35,o:0,pr:'££',d:0,w:1,r:4.4,h:''},
+{id:32,n:'Cairngorm Coffee Melville',a:'1 Melville Pl, Edinburgh EH3 7PR',lat:55.951202,lng:-3.211044,c:'Edinburgh',m:'La Marzocco Linea PB',p:1,s:28,o:0,pr:'££',d:0,w:1,r:4.4,h:''},
+{id:33,n:'Throat Punch Coffee',a:'30 Dalry Rd, Edinburgh EH11 2BA',lat:55.945147,lng:-3.217691,c:'Edinburgh',m:'Lever Machine',p:0,s:15,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:34,n:'The Dean Coffee Shop',a:'54 Belford Rd, Edinburgh EH4 3BR',lat:55.951236,lng:-3.219229,c:'Edinburgh',m:'Unknown',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:35,n:'Mr Eion Coffee Roaster',a:'9 Dean Park St, Edinburgh EH4 1JN',lat:55.958783,lng:-3.214844,c:'Edinburgh',m:'Sage',p:0,s:12,o:0,pr:'££',d:0,w:1,r:4.9,h:''},
+{id:36,n:'Cowan and Sons',a:'33 Raeburn Pl, Edinburgh EH4 1HX',lat:55.958889,lng:-3.211667,c:'Edinburgh',m:'Unknown',p:1,s:30,o:0,pr:'££',d:0,w:1,r:4.3,h:''},
+{id:37,n:'The Pastry Section',a:'86 Raeburn Pl, Edinburgh EH4 1HH',lat:55.959281,lng:-3.213262,c:'Edinburgh',m:'Unknown',p:1,s:25,o:0,pr:'££',d:0,w:1,r:4.7,h:''},
+{id:38,n:'Books N Cup Cafe',a:'16 Raeburn Pl, Edinburgh EH4 1HN',lat:55.959002,lng:-3.210422,c:'Edinburgh',m:'Unknown',p:0,s:22,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:39,n:'Kubo Cafe',a:'39 St Stephen St, Edinburgh EH3 5AH',lat:55.957961,lng:-3.206718,c:'Edinburgh',m:'Unknown',p:1,s:15,o:0,pr:'£',d:0,w:1,r:5.0,h:''},
+{id:40,n:'Fauna Coffee Shop',a:'19a Queensferry St, Edinburgh EH2 4QW',lat:55.950949,lng:-3.210123,c:'Edinburgh',m:'Unknown',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.7,h:''},
+{id:41,n:'Toastology',a:'33 Deanhaugh St, Edinburgh EH4 1LR',lat:55.958548,lng:-3.20943,c:'Edinburgh',m:'Unknown',p:1,s:18,o:0,pr:'£',d:0,w:1,r:4.7,h:''},
+{id:42,n:'The Pantry',a:'1 N W Circus Pl, Edinburgh EH3 6ST',lat:55.957204,lng:-3.205637,c:'Edinburgh',m:'Unknown',p:1,s:50,o:0,pr:'££',d:1,w:1,r:4.6,h:''},
+{id:43,n:'Hata',a:'5 Rodney St, Edinburgh EH7 4EN',lat:55.962272,lng:-3.196695,c:'Edinburgh',m:'Unknown',p:1,s:22,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:44,n:'Patisserie Florentin',a:'5 N W Circus Pl, Edinburgh EH3 6ST',lat:55.957258,lng:-3.205932,c:'Edinburgh',m:'Unknown',p:1,s:25,o:0,pr:'££',d:0,w:1,r:4.4,h:''},
+{id:45,n:'Uplands Roast',a:'University of Edinburgh, EH8 9LD',lat:55.942536,lng:-3.190041,c:'Edinburgh',m:'Unknown',p:1,s:30,o:0,pr:'£',d:0,w:1,r:4.7,h:''},
+{id:46,n:'The Coffee Cave',a:'158 Fountainbridge, Edinburgh EH3 9RX',lat:55.942898,lng:-3.211204,c:'Edinburgh',m:'Unknown',p:1,s:18,o:0,pr:'£',d:0,w:1,r:4.9,h:''},
+{id:47,n:'Munro',a:'4A Bridge Rd, Edinburgh EH13 0LF',lat:55.907579,lng:-3.255779,c:'Edinburgh',m:'Unknown',p:1,s:15,o:0,pr:'£',d:0,w:1,r:4.9,h:''},
+{id:48,n:'Gathering Space Cafe',a:'16 Cramond Glebe Rd, Edinburgh EH4 6NS',lat:55.977635,lng:-3.298336,c:'Edinburgh',m:'Unknown',p:1,s:20,o:1,pr:'£',d:1,w:1,r:4.8,h:''},
+{id:49,n:'Heart and Bottle',a:'15 Colinton Rd, Edinburgh EH10 5DP',lat:55.933799,lng:-3.210855,c:'Edinburgh',m:'Unknown',p:1,s:15,o:0,pr:'£',d:0,w:1,r:5.0,h:''},
+{id:50,n:'MORN Coffee',a:'12 Dalziel Pl, Edinburgh EH7 5TR',lat:55.956649,lng:-3.16206,c:'Edinburgh',m:'Unknown',p:0,s:12,o:0,pr:'£',d:0,w:1,r:4.9,h:''},
+{id:51,n:'The Coffee Connection',a:'186 Causewayside, Edinburgh EH9 1PN',lat:55.935608,lng:-3.180009,c:'Edinburgh',m:'Unknown',p:1,s:18,o:0,pr:'£',d:0,w:1,r:4.5,h:''},
+{id:52,n:'Coffee Inc',a:'3 Viewforth Gardens, Edinburgh EH10 4ET',lat:55.937415,lng:-3.207015,c:'Edinburgh',m:'Unknown',p:1,s:15,o:0,pr:'£',d:0,w:1,r:5.0,h:''},
+{id:53,n:'Nikos Espresso',a:'142 Morrison St, Edinburgh EH3 8EX',lat:55.945848,lng:-3.208131,c:'Edinburgh',m:'Unknown',p:0,s:15,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:54,n:'Sams Coffee Box',a:'99a Bruntsfield Pl, Edinburgh EH10 4HG',lat:55.937205,lng:-3.206721,c:'Edinburgh',m:'Unknown',p:0,s:4,o:0,pr:'£',d:0,w:0,r:4.9,h:''},
+{id:55,n:'Black Sheep Coffee',a:'123 Lothian Rd, Edinburgh EH3 9AN',lat:55.945894,lng:-3.205273,c:'Edinburgh',m:'Unknown',p:1,s:35,o:0,pr:'££',d:0,w:1,r:4.9,h:''},
+{id:56,n:'Braw Brunch',a:'3 E Fountainbridge, Edinburgh EH3 9BH',lat:55.945697,lng:-3.202336,c:'Edinburgh',m:'Unknown',p:1,s:30,o:0,pr:'££',d:0,w:1,r:4.7,h:''},
+{id:57,n:'POP Coffee',a:'22 Grindlay St, Edinburgh EH3 9AP',lat:55.946661,lng:-3.204409,c:'Edinburgh',m:'Unknown',p:0,s:10,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:58,n:'Loudons Fountainbridge',a:'94B Fountainbridge, Edinburgh EH3 9QA',lat:55.943554,lng:-3.208118,c:'Edinburgh',m:'Unknown',p:1,s:50,o:1,pr:'££',d:1,w:1,r:4.4,h:''},
+{id:59,n:'The Red Cockerel Cafe',a:'1 Lothian Rd, Edinburgh EH1 2AB',lat:55.95002,lng:-3.205947,c:'Edinburgh',m:'Unknown',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.5,h:''},
+{id:60,n:'SEVEN Neighbourhood Cafe',a:'7 Home St, Edinburgh EH3 9JR',lat:55.943333,lng:-3.203333,c:'Edinburgh',m:'Unknown',p:1,s:30,o:0,pr:'£',d:0,w:1,r:4.7,h:''},
+{id:61,n:'Caffe In',a:'Castle St, Edinburgh EH2 3AH',lat:55.951328,lng:-3.2027,c:'Edinburgh',m:'Unknown',p:0,s:12,o:0,pr:'£',d:0,w:1,r:4.7,h:''},
+{id:62,n:'The Source Coffee Roasters',a:'4 Spittal St, Edinburgh EH3 9DX',lat:55.946007,lng:-3.203224,c:'Edinburgh',m:'Unknown',p:0,s:20,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:63,n:'LArtigiano Edinburgh',a:'73 Fountainbridge, Edinburgh EH3 9PU',lat:55.944571,lng:-3.205343,c:'Edinburgh',m:'Unknown',p:1,s:45,o:1,pr:'££',d:1,w:1,r:4.6,h:''},
+{id:64,n:'The Ginger Coo Cafe',a:'200 Rose St, Edinburgh EH2 4AZ',lat:55.951328,lng:-3.205073,c:'Edinburgh',m:'Unknown',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.5,h:''},
+{id:65,n:'Fountain Cafe',a:'111 Grove St, Edinburgh EH3 8AB',lat:55.943711,lng:-3.211372,c:'Edinburgh',m:'Unknown',p:1,s:30,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:66,n:'Platform 41 Coffee',a:'41 Leith St, Edinburgh EH1 3AT',lat:55.954246,lng:-3.187416,c:'Edinburgh',m:'Unknown',p:1,s:15,o:0,pr:'£',d:0,w:1,r:5.0,h:''},
+{id:67,n:'Le Petit Bleu',a:'29-31 Buccleuch St, Edinburgh EH8 9LT',lat:55.943206,lng:-3.184494,c:'Edinburgh',m:'Unknown',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.7,h:''},
+{id:68,n:'Not Just Coffee',a:'33 W Nicolson St, Edinburgh EH8 9DB',lat:55.944716,lng:-3.185279,c:'Edinburgh',m:'Unknown',p:0,s:14,o:0,pr:'£',d:0,w:1,r:4.6,h:''},
+{id:69,n:'Santu Coffee',a:'126 Canongate, Edinburgh EH8 8DD',lat:55.95149,lng:-3.178893,c:'Edinburgh',m:'Unknown',p:1,s:18,o:0,pr:'£',d:0,w:1,r:4.7,h:''},
+{id:70,n:'Kilimanjaro Coffee',a:'104 Nicolson St, Edinburgh EH8 9EJ',lat:55.944519,lng:-3.183611,c:'Edinburgh',m:'Unknown',p:1,s:35,o:0,pr:'££',d:0,w:1,r:4.3,h:''},
+{id:71,n:'Edinburgh Coffee Lounge',a:'1 St Patrick St, Edinburgh EH8 9HB',lat:55.943585,lng:-3.18327,c:'Edinburgh',m:'Unknown',p:1,s:25,o:0,pr:'£',d:0,w:1,r:4.5,h:''},
+{id:72,n:'Love Peace and Coffee',a:'59 Clerk St, Edinburgh EH8 9JQ',lat:55.941807,lng:-3.18195,c:'Edinburgh',m:'Unknown',p:1,s:22,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:73,n:'Cult Coffee Roasters',a:'104 Buccleuch St, Edinburgh EH8 9NG',lat:55.941505,lng:-3.183714,c:'Edinburgh',m:'Unknown',p:0,s:18,o:0,pr:'£',d:0,w:1,r:4.6,h:''},
+{id:74,n:'Holyrood Coffee Shop',a:'1 Holyrood Rd, Edinburgh EH8 8AE',lat:55.949306,lng:-3.183087,c:'Edinburgh',m:'Unknown',p:1,s:25,o:0,pr:'£',d:0,w:1,r:4.6,h:''},
+{id:75,n:'Press Coffee',a:'30 Buccleuch St, Edinburgh EH8 9LP',lat:55.942912,lng:-3.184727,c:'Edinburgh',m:'Unknown',p:0,s:18,o:0,pr:'££',d:0,w:1,r:4.3,h:''},
+{id:76,n:'Fettle',a:'Marshall St, Edinburgh EH8 9BJ',lat:55.945836,lng:-3.18687,c:'Edinburgh',m:'Unknown',p:1,s:22,o:0,pr:'£',d:0,w:1,r:4.3,h:''},
+{id:77,n:'Bambis Cafe',a:'36 George Square, Edinburgh EH8 9LD',lat:55.943314,lng:-3.187305,c:'Edinburgh',m:'Unknown',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.9,h:''},
+{id:78,n:'Cafe Calton',a:'38a Calton Hill, Edinburgh EH7 5AA',lat:55.955225,lng:-3.183856,c:'Edinburgh',m:'Unknown',p:1,s:20,o:1,pr:'£',d:0,w:1,r:4.1,h:''},
+{id:79,n:'Printworks Coffee',a:'42 Constitution St, Leith, Edinburgh EH6 6RS',lat:55.974933,lng:-3.167125,c:'Edinburgh',m:'Unknown',p:1,s:18,o:0,pr:'£',d:0,w:1,r:4.6,h:''},
+{id:80,n:'Burr & Co',a:'20 George St, Edinburgh EH2 2PB',lat:55.953946,lng:-3.196371,c:'Edinburgh',m:'Unknown',p:1,s:30,o:0,pr:'££',d:0,w:1,r:4.4,h:''},
+{id:81,n:'The Bearded Baker',a:'46 Rodney St, Edinburgh EH7 4DX',lat:55.96194,lng:-3.195253,c:'Edinburgh',m:'Unknown',p:1,s:18,o:0,pr:'£',d:0,w:1,r:4.6,h:''},
+{id:82,n:'Scran',a:'13 Crewe Rd S, Edinburgh EH4 2LD',lat:55.959994,lng:-3.229655,c:'Edinburgh',m:'Unknown',p:1,s:22,o:0,pr:'£',d:1,w:1,r:4.6,h:''},
+{id:83,n:'Urban Angel',a:'121 Hanover St, Edinburgh EH2 1DJ',lat:55.954782,lng:-3.197681,c:'Edinburgh',m:'Unknown',p:1,s:35,o:0,pr:'££',d:1,w:1,r:4.4,h:''},
+{id:84,n:'Assembly Roxy',a:'2 Roxburgh Pl, Edinburgh EH8 9SU',lat:55.947424,lng:-3.184144,c:'Edinburgh',m:'Unknown',p:1,s:40,o:1,pr:'£',d:1,w:1,r:4.3,h:''},
+{id:85,n:'Finnegans Cafe',a:'130 Dundas St, Edinburgh EH3 5DQ',lat:55.959955,lng:-3.201073,c:'Edinburgh',m:'Unknown',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.6,h:''},
+{id:86,n:'The Howdah Tea & Coffee',a:'5 Deanhaugh St, Edinburgh EH4 1LU',lat:55.958265,lng:-3.209127,c:'Edinburgh',m:'Unknown',p:0,s:14,o:0,pr:'£',d:0,w:1,r:4.5,h:''},
+{id:87,n:'Kirkgate Cafe',a:'28 Kirkgate, Edinburgh EH16 6RY',lat:55.913017,lng:-3.160473,c:'Edinburgh',m:'Unknown',p:1,s:18,o:0,pr:'£',d:0,w:1,r:4.8,h:''},
+{id:88,n:'The Gilmerton Bridge Cafe',a:'16 Gilmerton Dykes St, Edinburgh EH17 8JX',lat:55.904096,lng:-3.147213,c:'Edinburgh',m:'Unknown',p:1,s:20,o:0,pr:'£',d:0,w:1,r:4.5,h:''}
 ];
 
-// ─── State ───
-var shops = [];
-var ul = null;
-var qry = '';
-var regionFilter = '';
-var mp = null;
-var mks = [];
-var loaded = 0;
+var ul=null,qry='',mp=null,mks=[];
+var seatSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 11V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v7"/><path d="M4 11h16a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1z"/><path d="M5 16v4"/><path d="M19 16v4"/></svg>';
+var sunSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+var dogSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 5.2C10 3.8 8.4 2.7 6.5 3c-2.8.5-4.1 6-4 7 .1 1.2 1.5 2 2.5 2s2-.5 3-1.5 1.5-2 1.5-2"/><path d="M14.3 5.2c0-1.4 1.6-2.5 3.5-2.2 2.8.5 4.1 6 4 7-.1 1.2-1.5 2-2.5 2s-2-.5-3-1.5-1.5-2-1.5-2"/><path d="M8 14v.5M16 14v.5"/><path d="M11.25 16.25h1.5L12 17l-.75-.75Z"/><path d="M4.42 11.25A13.2 13.2 0 0 0 4 14.56C4 18.73 7.58 21 12 21s8-2.27 8-6.44c0-1.16-.18-2.28-.49-3.31"/></svg>';
+var wifiSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>';
+var clockSvg='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+var navSvg='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>';
 
-// ─── Utils ───
 function hav(a1,n1,a2,n2){var R=6371,dL=(a2-a1)*Math.PI/180,dG=(n2-n1)*Math.PI/180,a=Math.sin(dL/2)*Math.sin(dL/2)+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dG/2)*Math.sin(dG/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
 function fd(k){return k<1?Math.round(k*1000)+'m':k<10?k.toFixed(1)+'km':Math.round(k)+'km'}
 function du(la,ln){return'https://www.google.com/maps/dir/?api=1&destination='+la+','+ln}
-
-var navSvg='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>';
-var clockSvg='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-var wifiSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>';
-
-function starH(r){if(!r)return'';var h='';for(var i=1;i<=5;i++){var f=i<=Math.round(r)?'#d4a017':'none',s=i<=Math.round(r)?'#d4a017':'#ccc';h+='<svg width="12" height="12" viewBox="0 0 24 24" fill="'+f+'" stroke="'+s+'" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';}return h+'<span class="v">'+r.toFixed(1)+'</span>'}
-
+function starH(r){var h='';for(var i=1;i<=5;i++){var f=i<=Math.round(r)?'#d4a017':'none',s=i<=Math.round(r)?'#d4a017':'#ccc';h+='<svg width="12" height="12" viewBox="0 0 24 24" fill="'+f+'" stroke="'+s+'" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';}return h+'<span class="v">'+r+'</span>'}
 function pl(c,t){return'<span class="pill '+c+'">'+t+'</span>'}
-
-function priceLabel(level){
-  if(level==='PRICE_LEVEL_INEXPENSIVE')return'£';
-  if(level==='PRICE_LEVEL_MODERATE')return'££';
-  if(level==='PRICE_LEVEL_EXPENSIVE')return'£££';
-  if(level==='PRICE_LEVEL_VERY_EXPENSIVE')return'££££';
-  return'';
-}
-
-function shortHours(hrs){
-  if(!hrs||!hrs.weekdayDescriptions)return'';
-  // Show today's hours
-  var d=new Date().getDay();
-  var idx=d===0?6:d-1; // weekdayDescriptions starts Monday
-  var today=hrs.weekdayDescriptions[idx]||'';
-  return today;
-}
-
-function tags(sh){
-  var t='';
-  if(sh.price)t+=pl('pn',sh.price);
-  if(sh.rating)t+=pl('pc','★ '+sh.rating.toFixed(1));
-  if(sh.ratingCount)t+=pl('pn',sh.ratingCount+' reviews');
-  return t;
-}
-
-function popH(sh,dist){
-  var hrs=shortHours(sh.hours);
-  return'<div style="padding:14px 16px;min-width:220px;max-width:280px;font-family:Inter,sans-serif">'+
-    '<strong style="font-size:14px;display:block;margin-bottom:2px">'+sh.n+'</strong>'+
-    '<p style="color:#999;font-size:11px;margin:0 0 6px">'+sh.a+'</p>'+
-    (dist?'<p style="color:#6f4e37;font-size:12px;font-weight:600;margin:0 0 8px">'+dist+' away</p>':'')+
-    '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">'+tags(sh)+'</div>'+
-    (hrs?'<p style="color:#bbb;font-size:10px;margin:0 0 10px">'+hrs+'</p>':'')+
-    '<a href="'+du(sh.lat,sh.lng)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:#6f4e37;color:white;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600">'+navSvg+' Directions</a></div>';
-}
-
-// ─── Filter & Sort ───
-function filt(){
-  var list=shops;
-  if(regionFilter){list=list.filter(function(s){return s.region===regionFilter})}
-  if(!qry.trim())return list;
-  var t=qry.toLowerCase();
-  return list.filter(function(s){return s.n.toLowerCase().indexOf(t)>-1||s.a.toLowerCase().indexOf(t)>-1||s.region.toLowerCase().indexOf(t)>-1});
-}
+function ms(m){return m==='Unknown'?'TBC':m.split(' ').slice(0,3).join(' ')}
+function tags(sh){var t=pl(sh.m!=='Unknown'?'pc':'pn',ms(sh.m))+pl('pn',sh.pr)+pl('pn',seatSvg+' '+sh.s);if(sh.p)t+=pl('pa','Pastries');if(sh.o)t+=pl('pg',sunSvg+' Outdoor');if(sh.d)t+=pl('pg',dogSvg+' Dogs');if(sh.w)t+=pl('pn',wifiSvg+' WiFi');return t}
+function popH(sh,dist){return'<div style="padding:14px 16px;min-width:220px;max-width:280px;font-family:Inter,sans-serif"><strong style="font-size:14px;display:block;margin-bottom:2px">'+sh.n+'</strong>'+(sh.m!=='Unknown'?'<p style="color:#6f4e37;font-size:11px;font-weight:600;margin:0 0 4px">'+sh.m+'</p>':'')+'<p style="color:#999;font-size:11px;margin:0 0 6px">'+sh.a+'</p>'+(dist?'<p style="color:#6f4e37;font-size:12px;font-weight:600;margin:0 0 8px">'+dist+' away</p>':'')+'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">'+tags(sh)+'</div>'+(sh.h?'<p style="color:#bbb;font-size:10px;margin:0 0 10px">'+sh.h+'</p>':'')+'<a href="'+du(sh.lat,sh.lng)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:#6f4e37;color:white;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600">'+navSvg+' Directions</a></div>'}
+function filt(){if(!qry.trim())return S;var t=qry.toLowerCase();if(t==='confirmed')return S.filter(function(s){return s.m!=='Unknown'});return S.filter(function(s){return s.n.toLowerCase().indexOf(t)>-1||s.m.toLowerCase().indexOf(t)>-1||s.a.toLowerCase().indexOf(t)>-1})}
 function srt(l){if(!ul)return l;return l.slice().sort(function(a,b){return hav(ul.lat,ul.lng,a.lat,a.lng)-hav(ul.lat,ul.lng,b.lat,b.lng)})}
-
-// ─── Render Cards ───
-function renderCards(){
-  var f=filt(),so=srt(f),c=document.getElementById('cds'),sn=document.getElementById('sn'),cn=document.getElementById('cnt');
-  cn.textContent=so.length+' coffee shop'+(so.length!==1?'s':'');
-  sn.style.display=ul?'flex':'none';
-  if(!so.length){c.innerHTML='<div class="empty">No results</div>';return}
-  var h='';
-  so.forEach(function(sh,i){
-    var d=ul?hav(ul.lat,ul.lng,sh.lat,sh.lng):null;
-    var hrs=shortHours(sh.hours);
-    h+='<div class="cd" style="animation-delay:'+Math.min(i*20,600)+'ms"><div class="ct"><div class="cl">'+
-      '<div class="cn"><h3>'+sh.n+'</h3><span>'+sh.region+'</span></div>'+
-      '<p class="ca">'+sh.a+'</p>'+
-      (sh.rating?'<div class="st">'+starH(sh.rating)+'</div>':'')+
-      '<div class="tg">'+tags(sh)+'</div>'+
-      (hrs?'<p class="ch">'+clockSvg+' '+hrs+'</p>':'')+
-      '</div><div class="cr">'+
-      (d!==null?'<span class="dl">'+fd(d)+'</span>':'')+
-      '<a href="'+du(sh.lat,sh.lng)+'" target="_blank" rel="noopener" class="db">'+navSvg+' Directions</a>'+
-      '</div></div></div>';
-  });
-  c.innerHTML=h;
-}
-
-// ─── Render Map Markers ───
-function renderMks(){
-  if(!mp)return;
-  mks.forEach(function(m){mp.removeLayer(m)});mks=[];
-  var f=filt(),so=srt(f);
-  if(ul){var ui=L.divIcon({className:'',html:'<div class="me-dot"></div>',iconSize:[12,12],iconAnchor:[6,6]});mks.push(L.marker([ul.lat,ul.lng],{icon:ui}).addTo(mp))}
-  so.forEach(function(sh){
-    var ic=L.divIcon({className:'',html:'<div class="dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/></svg></div>',iconSize:[28,28],iconAnchor:[14,14]});
-    var d=ul?fd(hav(ul.lat,ul.lng,sh.lat,sh.lng)):'';
-    mks.push(L.marker([sh.lat,sh.lng],{icon:ic}).addTo(mp).bindPopup(popH(sh,d),{maxWidth:300}));
-  });
-  if(so.length>0){var pts=so.map(function(s){return[s.lat,s.lng]});if(ul)pts.push([ul.lat,ul.lng]);mp.fitBounds(pts,{padding:[30,30],maxZoom:13})}
-}
-
-// ─── Region pills ───
-function renderRegions(){
-  var rs={};shops.forEach(function(s){rs[s.region]=(rs[s.region]||0)+1});
-  var sorted=Object.keys(rs).sort();
-  var w=document.getElementById('regions');
-  var h='<button class="rb'+(regionFilter===''?' on':'')+'" data-r="">All ('+shops.length+')</button>';
-  sorted.forEach(function(r){h+='<button class="rb'+(regionFilter===r?' on':'')+'" data-r="'+r+'">'+r+' ('+rs[r]+')</button>'});
-  w.innerHTML=h;
-  w.querySelectorAll('.rb').forEach(function(b){b.addEventListener('click',function(){
-    regionFilter=this.getAttribute('data-r');
-    renderRegions();renderCards();renderMks();
-  })});
-}
-
-// ─── Google Places API ───
-function searchRegion(region){
-  var body={
-    textQuery:'coffee shop '+region.name+' UK',
-    maxResultCount:20,
-    locationBias:{circle:{center:{latitude:region.lat,longitude:region.lng},radius:region.r}}
-  };
-  return fetch('https://places.googleapis.com/v1/places:searchText',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'X-Goog-Api-Key':API_KEY,
-      'X-Goog-FieldMask':FIELDS
-    },
-    body:JSON.stringify(body)
-  })
-  .then(function(r){return r.json()})
-  .then(function(data){
-    if(!data.places)return;
-    data.places.forEach(function(p){
-      // Deduplicate by name+location
-      var key=p.displayName.text+'-'+p.location.latitude.toFixed(4);
-      if(shops.some(function(s){return s.key===key}))return;
-      shops.push({
-        key:key,
-        n:p.displayName.text,
-        a:p.formattedAddress,
-        lat:p.location.latitude,
-        lng:p.location.longitude,
-        rating:p.rating||0,
-        ratingCount:p.userRatingCount||0,
-        price:priceLabel(p.priceLevel||''),
-        hours:p.currentOpeningHours||null,
-        types:p.types||[],
-        region:region.name
-      });
-    });
-    loaded++;
-    document.getElementById('cnt').textContent='Loading... '+loaded+'/'+REGIONS.length+' areas';
-  })
-  .catch(function(err){
-    console.error('Error loading '+region.name,err);
-    loaded++;
-  });
-}
-
-function loadAllRegions(){
-  // Load in batches of 5 to avoid overwhelming
-  var i=0;
-  function batch(){
-    var promises=[];
-    for(var j=0;j<5&&i<REGIONS.length;j++,i++){
-      promises.push(searchRegion(REGIONS[i]));
-    }
-    Promise.all(promises).then(function(){
-      if(i<REGIONS.length){
-        setTimeout(batch,300); // small delay between batches
-      } else {
-        // All done
-        renderRegions();
-        renderCards();
-        renderMks();
-      }
-    });
-  }
-  batch();
-}
-
-// ─── Init Map ───
-function initMap(){
-  var c=ul?[ul.lat,ul.lng]:[54.5,-2],z=ul?12:6;
-  mp=L.map('map',{zoomControl:false}).setView(c,z);
-  L.control.zoom({position:'bottomright'}).addTo(mp);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'',maxZoom:19}).addTo(mp);
-  setTimeout(function(){mp.invalidateSize()},100);
-}
-
-// ─── Locate ───
-function locate(){
-  if(!navigator.geolocation)return;
-  document.getElementById('lt').textContent='...';
-  navigator.geolocation.getCurrentPosition(function(p){
-    ul={lat:p.coords.latitude,lng:p.coords.longitude};
-    document.getElementById('lt').textContent='Locate me';
-    if(shops.length>0){renderCards();renderMks()}
-  },function(){document.getElementById('lt').textContent='Locate me'},{enableHighAccuracy:true,timeout:10000});
-}
-
-// ─── Events ───
-document.getElementById('q').addEventListener('input',function(){qry=this.value;renderCards();renderMks()});
+function renderCards(){var f=filt(),so=srt(f),c=document.getElementById('cds'),sn=document.getElementById('sn');sn.style.display=ul?'flex':'none';if(!so.length){c.innerHTML='<div class="empty">No results</div>';return}var h='';so.forEach(function(sh,i){var d=ul?hav(ul.lat,ul.lng,sh.lat,sh.lng):null;h+='<div class="cd" style="animation-delay:'+Math.min(i*20,600)+'ms"><div class="ct"><div class="cl"><div class="cn"><h3>'+sh.n+'</h3><span>'+(sh.m!=='Unknown'?sh.m:'')+'</span></div><p class="ca">'+sh.a+'</p><div class="st">'+starH(sh.r)+'</div><div class="tg">'+tags(sh)+'</div>'+(sh.h?'<p class="ch">'+clockSvg+' '+sh.h+'</p>':'')+'</div><div class="cr">'+(d!==null?'<span class="dl">'+fd(d)+'</span>':'')+'<a href="'+du(sh.lat,sh.lng)+'" target="_blank" rel="noopener" class="db">'+navSvg+' Directions</a></div></div></div>'});c.innerHTML=h}
+function renderMks(){if(!mp)return;mks.forEach(function(m){mp.removeLayer(m)});mks=[];var f=filt(),so=srt(f);if(ul){var ui=L.divIcon({className:'',html:'<div class="me-dot"></div>',iconSize:[12,12],iconAnchor:[6,6]});mks.push(L.marker([ul.lat,ul.lng],{icon:ui}).addTo(mp))}so.forEach(function(sh){var bg=sh.m!=='Unknown'?'#6f4e37':'#999';var ic=L.divIcon({className:'',html:'<div class="dot" style="background:'+bg+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/></svg></div>',iconSize:[28,28],iconAnchor:[14,14]});var d=ul?fd(hav(ul.lat,ul.lng,sh.lat,sh.lng)):'';mks.push(L.marker([sh.lat,sh.lng],{icon:ic}).addTo(mp).bindPopup(popH(sh,d),{maxWidth:300}))})}
+function renderPills(){var w=document.getElementById('pills'),h='<button class="pb'+(qry===''?' on':'')+'" data-c="">All (88)</button><button class="pb'+(qry==='confirmed'?' on':'')+'" data-c="confirmed">Confirmed (34)</button><button class="pb'+(qry==='La Marzocco'?' on':'')+'" data-c="La Marzocco">La Marzocco</button><button class="pb'+(qry==='Victoria'?' on':'')+'" data-c="Victoria">Victoria Arduino</button><button class="pb'+(qry==='Synesso'?' on':'')+'" data-c="Synesso">Synesso</button><button class="pb'+(qry==='Slayer'?' on':'')+'" data-c="Slayer">Slayer</button><button class="pb'+(qry==='Modbar'?' on':'')+'" data-c="Modbar">Modbar</button>';w.innerHTML=h;w.querySelectorAll('.pb').forEach(function(b){b.addEventListener('click',function(){var c=this.getAttribute('data-c');qry=(qry===c)?'':c;document.getElementById('q').value=(c==='confirmed'?'':qry);renderPills();renderCards();renderMks()})})}
+function initMap(){var c=[55.950,-3.195],z=13;mp=L.map('map',{zoomControl:false}).setView(c,z);L.control.zoom({position:'bottomright'}).addTo(mp);L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'',maxZoom:19}).addTo(mp);setTimeout(function(){mp.invalidateSize()},100);renderMks()}
+function locate(){if(!navigator.geolocation)return;document.getElementById('lt').textContent='...';navigator.geolocation.getCurrentPosition(function(p){ul={lat:p.coords.latitude,lng:p.coords.longitude};document.getElementById('lt').textContent='Near you';if(mp){mp.setView([ul.lat,ul.lng],15,{animate:true})}renderCards();renderMks()},function(){document.getElementById('lt').textContent='Locate me'},{enableHighAccuracy:true,timeout:10000})}
+document.getElementById('q').addEventListener('input',function(){qry=this.value;renderPills();renderCards();renderMks()});
 document.getElementById('loc').addEventListener('click',locate);
 document.getElementById('fab').addEventListener('click',function(){document.getElementById('mbg').classList.add('open')});
 document.getElementById('mclose').addEventListener('click',function(){document.getElementById('mbg').classList.remove('open')});
 document.getElementById('msub').addEventListener('click',function(){document.getElementById('mbg').classList.remove('open');alert('Thanks! Your submission will be reviewed.')});
 document.getElementById('mbg').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')});
-
-// ─── Boot ───
-window.addEventListener('DOMContentLoaded',function(){
-  initMap();
-  locate();
-  loadAllRegions();
-});
+window.addEventListener('DOMContentLoaded',function(){renderPills();renderCards();initMap();locate()});
 </script>
 </body>
 </html>
