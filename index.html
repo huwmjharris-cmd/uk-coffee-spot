@@ -15,7 +15,7 @@ a{color:var(--coffee)}
 
 /* Header */
 header{background:#fff;border-bottom:1px solid var(--ink5);position:sticky;top:0;z-index:1000}
-.hdr{max-width:900px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.hdr{max-width:900px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;flex-wrap:wrap}
 .logo{display:flex;align-items:center;gap:10px;cursor:pointer}
 .logo-i{width:32px;height:32px;border-radius:8px;background:var(--coffee);display:flex;align-items:center;justify-content:center;color:#fff}
 .logo h1{font-size:16px;font-weight:700;letter-spacing:-.3px;line-height:1}
@@ -73,7 +73,20 @@ header{background:#fff;border-bottom:1px solid var(--ink5);position:sticky;top:0
 .stat b{color:var(--coffee);font-weight:700}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
-@media(max-width:600px){.sw input{width:130px}.hdr,.pr,.lw{padding-left:16px;padding-right:16px}#mc{height:320px}.nav{gap:10px}}
+@media(max-width:600px){
+.hdr{height:auto;padding:12px 16px;gap:10px}
+.logo-i{width:28px;height:28px;border-radius:6px}
+.logo h1{font-size:14px}
+.logo p{font-size:9px}
+.nav{gap:12px;font-size:12px}
+.ctrls{width:100%;order:3}
+.sw{flex:1}
+.sw input{width:100%}
+.btn{padding:7px 10px;font-size:11px}
+.btn span{display:none}
+.pr,.lw{padding-left:16px;padding-right:16px}
+#mc{height:280px}
+}
 </style>
 </head>
 <body>
